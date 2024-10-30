@@ -3,17 +3,28 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo installing nginx
-      - echo sudo apt-get update
-      - echo sudo apt-get install nginx-y
+      - echo "Starting install phase"
+      - sudo apt-get update -y
+      - sudo apt-get install -y nginx
+  pre_build:
+    commands:
+      - echo "Pre-build phase: Verifying NGINX installation"
+      - nginx -v                   # Check NGINX installation
+      - sudo systemctl start nginx # Start NGINX service
   build:
     commands:
-      - echo build started on 'date'
-      - cp src/index.html /var/www/html/
+      - echo "Build phase: Copying website files"
+      - sudo cp index.html /var/www/html/      # Copy the main website file
+      - sudo cp -r assets /var/www/html/       # Copy additional website assets if present
   post_build:
     commands:
-      - echo Configuring NGINX
+      - echo "Post-build phase: Verifying website deployment"
+      - sudo systemctl restart nginx           # Restart NGINX to serve new content
+      - curl -I http://localhost               # Check if the server is serving the page
 
 artifacts:
   files:
     - /var/www/html/index.html
+    - /var/www/html/assets/**                  # Include any additional website assets
+
+
